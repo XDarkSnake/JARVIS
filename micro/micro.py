@@ -30,5 +30,4 @@ def obtenir_microphones_disponibles():
         return []
 
 if __name__ == "__main__":
-    microphones_disponibles = obtenir_microphones_disponibles()
-    print(microphones_disponibles)
+    print(obtenir_microphones_disponibles)

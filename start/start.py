@@ -1,28 +1,25 @@
 import customtkinter as ctk
+import logging
+import json
+
 from tkinter import messagebox
 from pathlib import Path
-import logging
 
 from micro.micro import obtenir_microphones_disponibles
 
 def micro():
-    """
-    Permet à l'utilisateur de choisir un microphone parmi ceux disponibles.
-
-    Returns:
-        str: L'index du microphone choisi.
-    """
-    chemin_parent = Path(__file__).resolve().parent
-    chemin_parent.mkdir(parents=True, exist_ok=True)
-    chemin_logs = chemin_parent / "logs_micro.log"
-    chemin_ico = chemin_parent.parent / "ressources" / "logo_micro.ico"
-    print(chemin_ico)
+    chemin_travail = Path().cwd()
+    chemin_travail.mkdir(parents=True, exist_ok=True)
     
+    chemin_logs = chemin_travail / "logs" /"logs_micro.log"
+    chemin_ico = chemin_travail / "ressources" / "logo_micro.ico"
+    chemin_settings = chemin_travail / "settings.json"
+
     logging.basicConfig(filename=chemin_logs, level=logging.INFO, format="%(levelname)s - %(message)s")
     with open(chemin_logs, "w"):
         pass
     
-    microphone_choisi = None  
+    microphone_choisi = None
     
     while microphone_choisi is None or microphone_choisi == "":
         micros_disponibles = obtenir_microphones_disponibles()
@@ -64,18 +61,26 @@ def micro():
         app.resizable(False, False)
         app.mainloop()
 
-    return microphone_choisi
+    with open(chemin_settings, "r") as f:
+        settings = json.load(f)
+
+    settings['micro'] = microphone_choisi
+
+    with open(chemin_settings, "w") as f:
+        json.dump(settings, f)
 
 def model():
-    chemin_parent = Path(__file__).resolve().parent
-    chemin_parent.mkdir(parents=True, exist_ok=True)
-    chemin_logs = chemin_parent / "logs_model.log"
-    chemin_ico = chemin_parent.parent / "ressources" / "logo_model.ico"
-
+    chemin_travail = Path().cwd()
+    chemin_travail.mkdir(parents=True, exist_ok=True)
+    
+    chemin_logs = chemin_travail / "logs" /"logs_model.log"
+    chemin_ico = chemin_travail / "ressources" / "logo_model.ico"
+    chemin_settings = chemin_travail / "settings.json"
+    
     logging.basicConfig(filename=chemin_logs, level=logging.INFO, format="%(levelname)s - %(message)s")
     with open(chemin_logs, "w"):
         pass
-    
+
     models = {"Minuscule": "tiny", "Basique": "base", "Petit": "small", "Moyen": "medium", "Grand": "large"}
     model_choisi = None
     
@@ -94,6 +99,7 @@ def model():
         def callback_optionmenu_model(choix: str):
             nonlocal model_choisi
             model_choisi = models.get(choix)
+            logging.info(model_choisi)
             app.destroy()
 
         optionmenu_var_model = ctk.StringVar(value=list(models.keys())[0])
@@ -116,10 +122,15 @@ def model():
 
         app.mainloop()
 
-    return model_choisi
+    with open(chemin_settings, "r") as f:
+        settings = json.load(f)
+
+    settings['model'] = model_choisi
+
+    with open(chemin_settings, "w") as f:
+        json.dump(settings, f)
 
 
 if __name__ == "__main__":
     micro()
     model()
-    print(model)

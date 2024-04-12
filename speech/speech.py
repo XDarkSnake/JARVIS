@@ -2,21 +2,32 @@ import whisper
 import logging
 from pathlib import Path
 
-from start.start import model
 
 def speech_to_text():
     """
     Fonction qui exécute le processus de transcription de la vidéo en texte.
     """
+    chemin_parent = Path(__file__).resolve().parent
+    chemin_parent.mkdir(parents=True, exist_ok=True)
+    chemin_logs = chemin_parent / "logs_speech.log"
+    
     # Définition du niveau de logging
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(filename=chemin_logs, level=logging.INFO, format="%(levelname)s - %(message)s")
+    with open(chemin_logs, "w"):
+        pass
 
     # Définition des chemins des fichiers
     CURR_DIR = Path.cwd()
     FILE_TXT = CURR_DIR / "text.txt"
-
+    MODEL = CURR_DIR / "model.txt"
+    
+    FILE_TXT.mkdir(exist_ok=True, parents=True)
+    MODEL.mkdir(exist_ok=True, parents=True)
+    
     try:
-        model_choisi = str(model())
+        with open(MODEL, "r") as model:
+            model_choisi = model.read()
+
         logging.info("Génération du fichier txt en cours...")
 
         logging.info("Chargement du modèle en cours...")
